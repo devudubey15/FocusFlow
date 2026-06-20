@@ -11,6 +11,7 @@ import (
 
 	"focusflow-agent/config"
 	"focusflow-agent/internal/cache"
+	"focusflow-agent/internal/ipc"
 	"focusflow-agent/internal/supabase"
 	"focusflow-agent/internal/tracker"
 	"focusflow-agent/internal/watcher"
@@ -52,15 +53,26 @@ func main() {
 	}
 
 	// Initialize tracker
+	var currentUrl string
 	t := tracker.NewTracker(func(s *tracker.Session) {
-		fmt.Printf("[SESSION END] %s | %s | %s | Duration: %v\n",
-			s.AppName, s.Title, s.StartedAt.Format("15:04:05"), s.EndedAt.Sub(s.StartedAt))
+		fmt.Printf("[SESSION END] %s | %s | %s | Duration: %v | URL: %s\n",
+			s.AppName, s.Title, s.StartedAt.Format("15:04:05"), s.EndedAt.Sub(s.StartedAt), s.URL)
 
 		// Save to local cache first
 		if err := store.SaveLog(s.AppName, s.Title, s.URL, s.StartedAt, s.EndedAt); err != nil {
 			log.Printf("Error saving to local cache: %v", err)
 		}
 	})
+
+	// Start IPC Socket Server for Browser URL updates
+	socketPath := filepath.Join(home, ".config", "focusflow", "agent.sock")
+	err = ipc.StartSocketServer(socketPath, func(update ipc.URLUpdate) {
+		fmt.Printf("[IPC] Received URL update: %s\n", update.URL)
+		currentUrl = update.URL
+	})
+	if err != nil {
+		log.Printf("Warning: Could not start IPC server: %v", err)
+	}
 
 	// Background Sync Process
 	if sbClient != nil {
@@ -136,7 +148,7 @@ func main() {
 			}
 
 			// Update tracker
-			t.Update(win.AppName, win.Title, "")
+			t.Update(win.AppName, win.Title, currentUrl)
 		}
 	}
 }

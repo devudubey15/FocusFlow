@@ -1,0 +1,9 @@
+{
+  "name": "com.devu.focusflow",
+  "description": "FocusFlow Native Messaging Host",
+  "path": "/home/devu/.local/bin/focusflow-nmh",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://PASTE_EXTENSION_ID_HERE/"
+  ]
+}

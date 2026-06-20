@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "FocusFlow Tracker",
+  "version": "1.0",
+  "description": "Companion extension for FocusFlow time tracker.",
+  "permissions": ["tabs", "nativeMessaging", "activeTab"],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
