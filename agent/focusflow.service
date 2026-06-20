@@ -1,0 +1,14 @@
+# ~/.config/systemd/user/focusflow.service
+[Unit]
+Description=FocusFlow Time Tracker Agent
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/focusflow-agent
+Restart=always
+RestartSec=5
+Environment=FOCUSFLOW_CONFIG=%h/.config/focusflow/config.json
+
+[Install]
+WantedBy=default.target
